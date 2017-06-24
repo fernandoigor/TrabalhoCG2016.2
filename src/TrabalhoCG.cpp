@@ -11,8 +11,11 @@
 #include <GL/glut.h>
 
 #include "imageloader.h"
+#include "Tank.h"
 
 using namespace std;
+
+Tank player;
 
 const float BOX_SIZE = 7.0f; //The length of each side of the cube
 float _angle = 0;            //The rotation of the box
@@ -97,7 +100,7 @@ void drawScene() {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glColor3f(1.0f, 1.0f, 1.0f);
 
-	glBegin(GL_QUADS);
+	/*glBegin(GL_QUADS);
 
 	glColor3f(1.0f, 1.0f, 1.0f);
 
@@ -155,6 +158,10 @@ void drawScene() {
 
 
 	glEnd();
+	*/
+
+	player.Draw();
+
 	glDisable(GL_TEXTURE_2D);
 	glColor3f(0.2,0.2,0.0);
 	glPushMatrix();
@@ -189,6 +196,7 @@ void drawScene() {
 //Called every 25 milliseconds
 void update(int value) {
 	_angle +=0.005*sentido;
+	player.setMotion(1);
 	glutPostRedisplay();
 	glutTimerFunc(25, update, 0);
 }
