@@ -19,7 +19,20 @@ Tank player;
 
 const float BOX_SIZE = 7.0f; //The length of each side of the cube
 float _angle = 0;            //The rotation of the box
-int sentido = 1;
+int sentido = 0;
+int rotacao = 0;
+int rotGun = 0;
+int shoot = 0;
+
+int keyWPressed = 0;
+int keyDPressed = 0;
+int keyAPressed = 0;
+int keySPressed = 0;
+
+int keyJPressed = 0;
+int keyKPressed = 0;
+
+
 GLuint _textureId[2];           //The OpenGL id of the texture
 
 
@@ -83,13 +96,10 @@ void drawScene() {
 	glLightfv(GL_LIGHT0, GL_POSITION, lightPos);
 
 	//glRotatef(_angle*80, 0.0f, 1.0f, 0.0f);
-	glTranslatef(-_angle*4, 0.0f, 0.0f);
+	float posX = player.getPosX();
+	float posZ = player.getPosZ();
 
-	if(sentido > 0)
-		glRotatef(-10, 0.0f, 0.0f, 1.0f);
-	else
-		glRotatef(10, 0.0f, 0.0f, 1.0f);
-
+	//glTranslatef(posX, 0.0f, posZ);
 
 	glDisable(GL_TEXTURE_2D);
 
@@ -100,93 +110,9 @@ void drawScene() {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glColor3f(1.0f, 1.0f, 1.0f);
 
-	/*glBegin(GL_QUADS);
-
-	glColor3f(1.0f, 1.0f, 1.0f);
-
-	//LONA TOP
-	glTexCoord2f(0.0f  + _angle, 0.0f);
-	glVertex3f(-BOX_SIZE / 2, BOX_SIZE / 4, -BOX_SIZE / 2);
-
-	glTexCoord2f(1.7f + _angle, 0.0f);
-	glVertex3f(BOX_SIZE / 2, BOX_SIZE / 4, -BOX_SIZE / 2);
-
-	glTexCoord2f(1.7f+ _angle, 1.0f);
-	glVertex3f(BOX_SIZE / 2, BOX_SIZE / 4, -BOX_SIZE/1.5);
-
-	glTexCoord2f(0.0f+ _angle, 1.0f);
-	glVertex3f(-BOX_SIZE / 2, BOX_SIZE / 4, -BOX_SIZE/1.5);
-
-	//LONA BOTTOM
-	glTexCoord2f(1.0f  + _angle, 0.0f);
-	glVertex3f(-BOX_SIZE / 4, 0, -BOX_SIZE / 2);
-
-	glTexCoord2f(0.0f + _angle, 0.0f);
-	glVertex3f(BOX_SIZE / 4, 0, -BOX_SIZE / 2);
-
-	glTexCoord2f(0.0f+ _angle, 1.0f);
-	glVertex3f(BOX_SIZE / 4, 0, -BOX_SIZE/1.5);
-
-	glTexCoord2f(1.0f+ _angle, 1.0f);
-	glVertex3f(-BOX_SIZE / 4, 0, -BOX_SIZE/1.5);
-
-	// LONA FRENTE
-	glTexCoord2f(1.0f+ _angle, 0.0f);//+ _angle
-	glVertex3f(-BOX_SIZE / 2, BOX_SIZE / 4, -BOX_SIZE/1.5);
-
-	glTexCoord2f(1.0f+ _angle, 1.0f);
-	glVertex3f(-BOX_SIZE / 2, BOX_SIZE / 4, -BOX_SIZE / 2);
-
-	glTexCoord2f(0.0f+ _angle, 1.0f);
-	glVertex3f(-BOX_SIZE / 4, 0, -BOX_SIZE / 2);
-
-	glTexCoord2f(0.0f+ _angle, 0.0f);
-	glVertex3f(-BOX_SIZE / 4, 0, -BOX_SIZE/1.5);
-
-	// LONA TRAS
-	glTexCoord2f(0.0f+ _angle, 0.0f);//+ _angle
-	glVertex3f(BOX_SIZE / 2, BOX_SIZE / 4, -BOX_SIZE/1.5);
-
-	glTexCoord2f(0.0f+ _angle, 1.0f);
-	glVertex3f(BOX_SIZE / 2, BOX_SIZE / 4, -BOX_SIZE / 2);
-
-	glTexCoord2f(1.0f+ _angle, 1.0f);
-	glVertex3f(BOX_SIZE / 4, 0, -BOX_SIZE / 2);
-
-	glTexCoord2f(1.0f+ _angle, 0.0f);
-	glVertex3f(BOX_SIZE / 4, 0, -BOX_SIZE/1.5);
-
-
-	glEnd();
-	*/
-
 	player.Draw();
 
-	glDisable(GL_TEXTURE_2D);
-	glColor3f(0.2,0.2,0.0);
-	glPushMatrix();
-	glTranslatef(-2.5,1.3,-3.7);
-	glRotatef(_angle*1000,0.0,0.0,1.0);
-	glutSolidCube(0.5);
-	glPopMatrix();
 
-	glPushMatrix();
-		glTranslatef(2.5,1.3,-3.7);
-		glRotatef(_angle*1000,0.0,0.0,1.0);
-		glutSolidCube(0.5);
-	glPopMatrix();
-
-	glPushMatrix();
-		glTranslatef(-1.2,1.0,-3.9);
-		glRotatef(_angle*1000,0.0,0.0,1.0);
-		glutSolidCube(1);
-		glPopMatrix();
-
-	glPushMatrix();
-	glTranslatef(1.2,1.0,-3.9);
-	glRotatef(_angle*1000,0.0,0.0,1.0);
-	glutSolidCube(1);
-	glPopMatrix();
 
 
 
@@ -195,16 +121,85 @@ void drawScene() {
 
 //Called every 25 milliseconds
 void update(int value) {
-	_angle +=0.005*sentido;
-	player.setMotion(1);
+	if(keyWPressed == 1)
+		sentido = -1;
+	else if(keySPressed == 1)
+		sentido = 1;
+	else
+		sentido = 0;
+
+	if(keyDPressed == 1)
+		rotacao = -1;
+	else if(keyAPressed == 1)
+		rotacao = 1;
+	else
+		rotacao = 0;
+
+	if(keyKPressed == 1)
+			rotGun = -1;
+		else if(keyJPressed == 1)
+			rotGun = 1;
+		else
+			rotGun = 0;
+
+
+	//_angle +=0.005*sentido;
+	player.setMotion(sentido,rotacao,rotGun,shoot);
 	glutPostRedisplay();
+	//cout << sentido << " " << rotacao << endl;
 	glutTimerFunc(25, update, 0);
 }
-void handleKeypress(unsigned char key,int,int){
-	if(key == 'w')
-		sentido = 1;
-	if(key == 's')
-		sentido = -1;
+
+void Teclado(unsigned char key, int x, int y){
+	switch(key){
+	case 'w':
+			keyWPressed =1;
+			break;
+	case 'd':
+			keyDPressed =1;
+			break;
+	case 's':
+			keySPressed =1;
+			break;
+	case 'a':
+			keyAPressed =1;
+			break;
+	case 'j':
+			keyJPressed =1;
+			break;
+	case 'k':
+			keyKPressed =1;
+			break;
+	case 'h':
+			shoot =1;
+			break;
+	}
+}
+void TecladoUp(unsigned char key, int x, int y){
+
+	switch(key){
+		case 'w':
+				keyWPressed =0;
+				break;
+		case 'd':
+				keyDPressed =0;
+				break;
+		case 's':
+				keySPressed =0;
+				break;
+		case 'a':
+				keyAPressed =0;
+				break;
+		case 'j':
+				keyJPressed =0;
+				break;
+		case 'k':
+				keyKPressed =0;
+				break;
+		case 'h':
+				shoot =0;
+				break;
+		}
 }
 int main(int argc, char** argv) {
 	glutInit(&argc, argv);
@@ -215,7 +210,8 @@ int main(int argc, char** argv) {
 	initRendering();
 
 	glutDisplayFunc(drawScene);
-	glutKeyboardFunc(handleKeypress);
+	glutKeyboardFunc(Teclado);
+	glutKeyboardUpFunc(TecladoUp);
 	glutReshapeFunc(handleResize);
 	glutTimerFunc(25, update, 0);
 
