@@ -26,7 +26,7 @@ void Tank::Draw() {
 			if(life == 0.0)
 				glTranslatef(0.0,-1.0,0.0);
 			glColor3f(0.7,0.7,0.7);
-			glTranslatef(posXTank,3.0,posZTank);
+			glTranslatef(posXTank,3.0+posYTank,posZTank);
 			glRotatef(rotGun+90,0.0,1.0,0.0);
 			glutSolidOctahedron();
 			glPushMatrix();
@@ -39,15 +39,15 @@ void Tank::Draw() {
 
 		glPushMatrix();
 		glBegin(GL_LINES);
-		glVertex3f(0+posXTank, 1, 0+posZTank);
-		glVertex3f(posXTank+dirGunX, 1, posZTank+dirGunZ);
+		glVertex3f(0+posXTank, posYTank, 0+posZTank);
+		glVertex3f(posXTank+dirGunX, posYTank, posZTank+dirGunZ);
 		glEnd();
 		glPopMatrix();
 		if(shootBullet > 0){
 			bullet.Draw();
 		}
 
-		glTranslatef(posXTank, 0.0f, posZTank);
+		glTranslatef(posXTank, posYTank, posZTank);
 		glRotatef(rotTank, 0.0f, 1.0f, 0.0f);
 
 
@@ -267,6 +267,10 @@ void Tank::Draw() {
 void Tank::setMotion(int sentido,int rotacao,int gun,int  shoot) {
 	if(life == 0){
 		sentido = rotacao = gun = shoot = 0;
+		posYTank += posYTank;
+		cout << posYTank << endl;
+		if(posYTank < -10)
+			posYTank = -10;
 	}
 		rotGun += gun;
 		if(rotGun >= 360 || rotGun <= -360)
@@ -319,6 +323,11 @@ void Tank::setMotion(int sentido,int rotacao,int gun,int  shoot) {
 		lastPosZTank = posZTank;
 		posXTank -=cos(rotTank*3.14/180)*sentido/10.0;
 		posZTank +=sin(rotTank*3.14/180)*sentido/10.0;
+		if(posXTank > 52 || posXTank < -52 || posZTank > 52 || posZTank < -52){
+			life = 0;
+			if(posYTank > 0)
+				posYTank = -0.02;
+		}
 }
 
 float Tank::getPosX() {

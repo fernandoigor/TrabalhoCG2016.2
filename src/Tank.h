@@ -53,10 +53,7 @@ private:
 	float life = 100;
 
 	int inimigoDetectado = 0;
-	/*float dirBulletX = 0.0;
-	float dirBulletZ = 0.0;
-	float bulletX = 0.0;
-	float bulletZ = 0.0;*/
+	float posYTank = 0.1;
 };
 float calcAngle(float,float,float,float);
 #endif /* TANK_H_ */

@@ -198,7 +198,7 @@ void drawScene() {
 
 
 
-	criarPlano(10,1,10);
+	criarPlano(50,1,50);
 
 
 	glDisable(GL_TEXTURE_2D);
