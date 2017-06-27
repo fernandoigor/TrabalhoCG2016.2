@@ -9,13 +9,20 @@
 #include <iostream>
 #include <stdlib.h>
 #include <GL/glut.h>
+#include <stdlib.h>
+#include <math.h>
 
 #include "imageloader.h"
 #include "Tank.h"
 
 using namespace std;
 
+int JANELAX = 800;
+int JANELAY = 600;
+
 Tank player;
+Tank inimigo[3];
+
 
 const float BOX_SIZE = 7.0f; //The length of each side of the cube
 float _angle = 0;            //The rotation of the box
@@ -62,8 +69,8 @@ void initRendering() {
 	glEnable(GL_NORMALIZE);
 	glEnable(GL_COLOR_MATERIAL);
 	Image* image;
-	/*Image* image = loadBMP("vtr.bmp");
-	_textureId[0] = loadTexture(image);*/
+	image = loadBMP("plano.bmp");
+	_textureId[0] = loadTexture(image);
 	image = loadBMP("esteira.bmp");
 	_textureId[1] = loadTexture(image);
 	delete image;
@@ -75,15 +82,60 @@ void handleResize(int w, int h) {
 	glLoadIdentity();
 	gluPerspective(45.0, (float)w / (float)h, 1.0, 200.0);
 }
+void criarPlano(float x,float y,float z){
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, _textureId[0]);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glColor3f(1.0f, 1.0f, 1.0f);
 
+	glBegin(GL_QUADS);
+		glTexCoord2f(0.0f, 0.0f);
+		glVertex3f(-40, -0.32, -40);
+
+		glTexCoord2f(0.0f, 1.0f);
+		glVertex3f(-40, -0.32, 40);
+
+		glTexCoord2f(1.0f, 1.0f);
+		glVertex3f(40, -0.32, 40);
+
+		glTexCoord2f(1.0f, 0.0f);
+		glVertex3f( 40, -0.32, -40);
+	glEnd();
+
+}
+void LifeBar(float x,float y,float hp,float max){
+	//glColor3f(0.2f, 0.3f, 1.0f);
+	hp +=2.5;
+	glBegin(GL_QUADS);
+		glVertex3f(-6, 1, -100);
+		glVertex3f(-6, 1, 100);
+		glVertex3f(-6+(12*hp/max), 1, 100);
+		glVertex3f(-6+(12*hp/max), 1, -100);
+	glEnd();
+}
 void drawScene() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+	glViewport(0, 0, JANELAX, JANELAY);
+	glClearColor(1.0f, 1.0f, 0.8f, 1.0f);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	gluLookAt(0.0, 10.0, 20.0,		/* eye */
-	   	      0.0, 0.0, 0.0,		/* look */
-	    	  0.0, 1.0, 0.0);		/* up */
+	float posX = player.getPosX();
+	float posZ = player.getPosZ();
+	float gunX = player.getGunX();
+	float gunZ = player.getGunZ();
+	/*float rot = player.getRot();
+	float camX, camZ;*/
+	//camX = cos(rot*3.14/180)*(posX+10)+ + sin(rot*3.14/180)*(posZ+10);
+	//camZ = -sin(rot*3.14/180)*(posX+10) + cos(rot*3.14/180)*(posZ+10);
+	//cout << acos(gunX)*180.0/ 3.14159265 << endl;
+	//gluLookAt(posX, 5.0,posZ,		/* eye */
+	//		posX+gunX*10, 1.0,posZ+gunZ*10,		/* look */
+	//    	  0.0, 1.0, 0.0);		/* up */
+
+	gluLookAt(posX-gunX*15, 7.0,posZ-gunZ*15,		/* eye */
+				posX+gunX*5, 1.0,posZ+gunZ*5,		/* look */
+		    	  0.0, 1.0, 0.0);		/* up */
 
 
 
@@ -96,8 +148,9 @@ void drawScene() {
 	glLightfv(GL_LIGHT0, GL_POSITION, lightPos);
 
 	//glRotatef(_angle*80, 0.0f, 1.0f, 0.0f);
-	float posX = player.getPosX();
-	float posZ = player.getPosZ();
+
+
+	criarPlano(10,1,10);
 
 	//glTranslatef(posX, 0.0f, posZ);
 
@@ -109,17 +162,156 @@ void drawScene() {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glColor3f(1.0f, 1.0f, 1.0f);
-
+	glPushMatrix();
 	player.Draw();
+	glPopMatrix();
+
+	for(int i=0; i<3;i++){
+		glEnable(GL_TEXTURE_2D);
+		glBindTexture(GL_TEXTURE_2D, _textureId[1]);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glColor3f(1.0f, 1.0f, 1.0f);
+		glPushMatrix();
+		inimigo[i].Draw();
+		glPopMatrix();
+	}
+	//glutSwapBuffers();
+	//#####################################
+	//#####################################
+	glViewport(JANELAX-150, JANELAY-150, 150, 150);
+	//glScissor(JANELAX-150,JANELAY-150,JANELAX,JANELAY);
+	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	//glClearColor(1.0f, 1.0f, 0.8f, 1.0f);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+
+	gluLookAt(posX-gunX*15, 80.0,posZ-gunZ*15,		/* eye */
+				posX, 1.0,posZ,		/* look */
+				  0.0, 1.0, 0.0);		/* up */
 
 
 
 
+	criarPlano(10,1,10);
+
+
+	glDisable(GL_TEXTURE_2D);
+
+
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, _textureId[1]);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glColor3f(1.0f, 1.0f, 1.0f);
+	glPushMatrix();
+	player.Draw();
+	glPopMatrix();
+
+	for(int i=0; i<3;i++){
+		glEnable(GL_TEXTURE_2D);
+		glBindTexture(GL_TEXTURE_2D, _textureId[1]);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glColor3f(1.0f, 1.0f, 1.0f);
+		glPushMatrix();
+		inimigo[i].Draw();
+		glPopMatrix();
+	}
+	// ##############################################
+	// ##############################################
+
+	glViewport(JANELAX-150, JANELAY-160, 150, 10);
+
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	gluLookAt(0, 10, 0,		/* eye */
+			  0.0, 0.0,1.0,		/* look */
+			  0.0, 1.0, 0.0);		/* up */
+	glColor3f(0.2f, 0.3f, 1.0f);
+	LifeBar(0,0,player.getReloadTime(),150.0);
+
+	// ##############################################
+	// ##############################################
+
+	glViewport(JANELAX-150, JANELAY-170, 150, 10);
+
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	gluLookAt(0, 10, 0,		/* eye */
+			  0.0, 0.0,1.0,		/* look */
+			  0.0, 1.0, 0.0);		/* up */
+	glColor3f(0.2f, 1.0f, 0.2f);
+	LifeBar(0,0,player.getLife(),100.0);
+	//glViewport(200, 200, 50, 50);
 
 	glutSwapBuffers();
 }
 
+int coll(float xA,float yA,float tA,float xB,float yB,float tB){
+	int ladoLR = 0; // lado left right
+	int ladoTB =0;  // lado top bottom
+	// lado {direito =1, esquerdo = 3, atras = 5, frente = 9}
+
+	if(xA+tA < xB) ladoLR = 1;
+	else if(xA > xB+tB) ladoLR = 3;
+	if(yA > yB+tB) ladoTB = 5;
+	else if(yA+tA < yB) ladoTB = 9;
+	return ladoLR + ladoTB;
+}
+int Collision(){
+
+	float xA = player.getPosX();
+	float yA = player.getPosZ();
+	float tA = 6;
+	float xB = 0;
+	float yB = 0;
+	float tB = 6;
+	for(int i=0; i<3; i++){
+		xA = player.getPosX();
+		yA = player.getPosZ();
+		tA = 6;
+		// COLISAO ENTRE TANKS
+		xB = inimigo[i].getPosX();
+		yB = inimigo[i].getPosZ();
+		tB = 6;
+
+		if(coll(xA,yA,tA,xB,yB,tB) == 0){
+			player.Collision(1);
+			inimigo[i].Collision(1);
+		}
+
+		// VERIFICAR COLISAO DA BALA DO INIMIGO
+		xB = inimigo[i].getBulletX();
+		yB = inimigo[i].getBulletZ();
+		tB = 2;
+
+		if(coll(xA,yA,tA,xB,yB,tB) == 0){
+			player.Collision(10);
+			inimigo[i].destroyBullet();
+		}
+
+		// VERIFICAR COLISAO DA BALA DO PLAYER
+		xA = player.getBulletX();
+		yA = player.getBulletZ();
+		tA = 2;
+
+		xB = inimigo[i].getPosX();
+		yB = inimigo[i].getPosZ();
+		tB = 6;
+
+		if(coll(xA,yA,tA,xB,yB,tB) == 0){
+			inimigo[i].Collision(10);
+			player.destroyBullet();
+		}
+	}
+
+
+
+
+}
 //Called every 25 milliseconds
+
 void update(int value) {
 	if(keyWPressed == 1)
 		sentido = -1;
@@ -143,12 +335,32 @@ void update(int value) {
 			rotGun = 0;
 
 
-	//_angle +=0.005*sentido;
 	player.setMotion(sentido,rotacao,rotGun,shoot);
+	int posX,posZ;
+	posX = player.getPosX();
+	posZ = player.getPosZ();
+	for(int i=0; i<1;i++){
+		int mov, rot;
+		mov = rand()%3-1;
+		rot = rand()%4;
+		//lastMov[i][0] = lastMov[i][1] = lastMov[i][mov]
+		inimigo[i].setMotion(0,0,0,rand()%2);
+		inimigo[i].setGun(posX,posZ);
+	}
+
+	//inimigo.setMotion(1,0,1,0);
+	//inimigo[].setMotion()
+
+	Collision();
+	/*cout << player.getLife();
+	for(int i=0; i<3;i++)
+		cout << inimigo[i].getLife();
+	cout << endl;
+	*/
 	glutPostRedisplay();
-	//cout << sentido << " " << rotacao << endl;
 	glutTimerFunc(25, update, 0);
 }
+
 
 void Teclado(unsigned char key, int x, int y){
 	switch(key){
@@ -202,9 +414,16 @@ void TecladoUp(unsigned char key, int x, int y){
 		}
 }
 int main(int argc, char** argv) {
+	player.setPlayer();
+	inimigo[0].setPos(10,10);
+	inimigo[1].setPos(20,10);
+	inimigo[2].setPos(-10,20);
+
+
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
-	glutInitWindowSize(800, 800);
+	glutInitWindowSize(JANELAX, JANELAY);
+	glutInitWindowPosition (500, 100);
 
 	glutCreateWindow("cg");
 	initRendering();
