@@ -23,27 +23,19 @@ void Tank::Draw() {
 
 
 		glPushMatrix();
-				glColor3f(0.7,0.7,0.7);
-				glTranslatef(posXTank,3.0,posZTank);
-				glRotatef(rotGun+90,0.0,1.0,0.0);
-				glutSolidOctahedron();
-				glPushMatrix();
-				glScalef(1.0,0.5,1.0);
-				glTranslatef(0.0,-1.1,0.0);
-				glutSolidCube(2);
-				glPopMatrix();
-				glutSolidCone(0.5,6,4,4);
+			if(life == 0.0)
+				glTranslatef(0.0,-1.0,0.0);
+			glColor3f(0.7,0.7,0.7);
+			glTranslatef(posXTank,3.0,posZTank);
+			glRotatef(rotGun+90,0.0,1.0,0.0);
+			glutSolidOctahedron();
+			glPushMatrix();
+			glScalef(1.0,0.5,1.0);
+			glTranslatef(0.0,-1.1,0.0);
+			glutSolidCube(2);
+			glPopMatrix();
+			glutSolidCone(0.5,6,4,4);
 		glPopMatrix();
-
-
-
-		/*glPushMatrix();
-				glBegin(GL_LINES);
-				glVertex3f(0+posXTank, 1, 0+posZTank);
-				glVertex3f(posXTank+10, 1, posZTank+0);
-				glEnd();
-				glPopMatrix();
-		 	*/
 
 		glPushMatrix();
 		glBegin(GL_LINES);
@@ -66,6 +58,8 @@ void Tank::Draw() {
 				glColor3f(1.0*(life/100.0),1.0*(life/100.0),0.0*(life/100.0));
 			else
 				glColor3f(0.0*(life/100.0),1.0*(life/100.0),0.0*(life/100.0));
+			if(life == 0.0)
+				glTranslatef(0.0,-1.0,0.0);
 			glTranslatef(0.0,1.0,0.0);
 			glScalef(1.2,0.4,0.75);
 			glutSolidCube(4);
@@ -268,12 +262,6 @@ void Tank::Draw() {
 			glRotatef(rodaL,0.0,0.0,1.0);
 			glutSolidCube(1);
 			glPopMatrix();
-
-
-
-
-
-
 }
 
 void Tank::setMotion(int sentido,int rotacao,int gun,int  shoot) {
@@ -284,7 +272,6 @@ void Tank::setMotion(int sentido,int rotacao,int gun,int  shoot) {
 		if(rotGun >= 360 || rotGun <= -360)
 			rotGun = 0;
 		if(player == 1){
-		//setGun(cos(rotGun*3.14/180)*1,-sin(rotGun*3.14/180)*1);
 		dirGunX = cos(rotGun*3.14/180)*1 + sin(rotGun*3.14/180)*0 + 0;
 		dirGunZ = -sin(rotGun*3.14/180)*1 + cos(rotGun*3.14/180)*0 + 0;
 		}
@@ -379,6 +366,7 @@ void Tank::setGun(float x, float z){
 			dirGunZ = ((z - posZTank)/ sqrt((x - posXTank)*(x - posXTank)   +   (z - posZTank)*(z - posZTank)));
 			//cout << dirGunX << " " << dirGunZ << endl;
 			rotGun = calcAngle(dirGunX, dirGunZ, 1.0,0.0);
+			cout << x - posXTank << " "<< z - posZTank << endl;
 			//calcAngle(1, 1, 1.0,0.0);
 		}else
 			inimigoDetectado = 0;
@@ -404,6 +392,6 @@ int Tank::getReloadTime(){
 
 
 float calcAngle(float xA, float zA, float xB, float zB){
-	return acos((xA*xB + zA*zB) /(sqrt(xA*xA + zA*zA) * sqrt(xB*xB + zB*zB)))*180.0/ 3.14159265;
+	return -acos((xA*xB + zA*zB) /(sqrt(xA*xA + zA*zA) * sqrt(xB*xB + zB*zB)))*180.0/ 3.14159265;
 }
 

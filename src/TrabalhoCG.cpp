@@ -43,7 +43,9 @@ int keyKPressed = 0;
 GLuint _textureId[2];           //The OpenGL id of the texture
 
 
-
+GLuint fogMode[] = { GL_EXP, GL_EXP2, GL_LINEAR };
+GLuint fogfilter = 0;
+GLfloat fogColor[4]= {0.5f, 0.5f, 0.5f, 1.0f};		// Fog color
 
 
 //Makes the image into a texture, and returns the id of the texture
@@ -74,6 +76,7 @@ void initRendering() {
 	image = loadBMP("esteira.bmp");
 	_textureId[1] = loadTexture(image);
 	delete image;
+
 }
 
 void handleResize(int w, int h) {
@@ -91,16 +94,16 @@ void criarPlano(float x,float y,float z){
 
 	glBegin(GL_QUADS);
 		glTexCoord2f(0.0f, 0.0f);
-		glVertex3f(-40, -0.32, -40);
+		glVertex3f(-x, -0.32, -z);
 
 		glTexCoord2f(0.0f, 1.0f);
-		glVertex3f(-40, -0.32, 40);
+		glVertex3f(-x, -0.32, z);
 
 		glTexCoord2f(1.0f, 1.0f);
-		glVertex3f(40, -0.32, 40);
+		glVertex3f(x, -0.32, z);
 
 		glTexCoord2f(1.0f, 0.0f);
-		glVertex3f( 40, -0.32, -40);
+		glVertex3f( x, -0.32, -z);
 	glEnd();
 
 }
@@ -120,6 +123,8 @@ void drawScene() {
 	glClearColor(1.0f, 1.0f, 0.8f, 1.0f);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
+
+
 	float posX = player.getPosX();
 	float posZ = player.getPosZ();
 	float gunX = player.getGunX();
@@ -150,7 +155,7 @@ void drawScene() {
 	//glRotatef(_angle*80, 0.0f, 1.0f, 0.0f);
 
 
-	criarPlano(10,1,10);
+	criarPlano(50,1,50);
 
 	//glTranslatef(posX, 0.0f, posZ);
 
@@ -180,8 +185,8 @@ void drawScene() {
 	//#####################################
 	//#####################################
 	glViewport(JANELAX-150, JANELAY-150, 150, 150);
-	//glScissor(JANELAX-150,JANELAY-150,JANELAX,JANELAY);
-	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glScissor(JANELAX-150,JANELAY-150,JANELAX,JANELAY);
+	glClear(GL_DEPTH_BUFFER_BIT);
 	//glClearColor(1.0f, 1.0f, 0.8f, 1.0f);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
@@ -339,24 +344,17 @@ void update(int value) {
 	int posX,posZ;
 	posX = player.getPosX();
 	posZ = player.getPosZ();
-	for(int i=0; i<1;i++){
+	for(int i=0; i<3;i++){
 		int mov, rot;
-		mov = rand()%3-1;
-		rot = rand()%4;
+		mov = rand()%4-1;
+		rot = rand()%4-1;
 		//lastMov[i][0] = lastMov[i][1] = lastMov[i][mov]
-		inimigo[i].setMotion(0,0,0,rand()%2);
+		inimigo[i].setMotion(mov,rot,0,rand()%2);
 		inimigo[i].setGun(posX,posZ);
 	}
 
-	//inimigo.setMotion(1,0,1,0);
-	//inimigo[].setMotion()
 
 	Collision();
-	/*cout << player.getLife();
-	for(int i=0; i<3;i++)
-		cout << inimigo[i].getLife();
-	cout << endl;
-	*/
 	glutPostRedisplay();
 	glutTimerFunc(25, update, 0);
 }
@@ -415,9 +413,10 @@ void TecladoUp(unsigned char key, int x, int y){
 }
 int main(int argc, char** argv) {
 	player.setPlayer();
-	inimigo[0].setPos(10,10);
-	inimigo[1].setPos(20,10);
-	inimigo[2].setPos(-10,20);
+	player.setPos(-30,30);
+	inimigo[0].setPos(0,-30);
+	inimigo[1].setPos(-30,-30);
+	inimigo[2].setPos(30,-30);
 
 
 	glutInit(&argc, argv);
